@@ -1,0 +1,6 @@
+*.ys
+*.blif
+*.vcd
+*.vvp
+*.script
+*.dot
