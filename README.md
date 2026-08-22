@@ -8,6 +8,19 @@
 * **Memory Subsystem:** Split Harvard Architecture (Synchronous BRAM-compatible, Byte-addressable LSU)
 * **Toolchain & EDA:** Yosys, Berkeley ABC, Icarus Verilog, SymbiYosys, GTKWave
 
+## Repository Structure
+
+```bash
+rv32i/
+├── src/                        # Synthesizable RTL source codes
+├── verif/                      # Verification environment
+│   ├── formal/                 # SystemVerilog assertions (SVA) and SymbiYosys (SBY) proof configurations
+│   ├── sec/                    # Sequential Equivalence Checking (SEC) scripts and golden models
+│   └── tb/                     # Simulation testbenches
+└── scripts/                    # EDA automation scripts (Yosys and ABC flow)
+```
+
+
 ---
 
 ## Project Roadmap
