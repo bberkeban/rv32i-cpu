@@ -1,0 +1,20 @@
+read_verilog *.v
+
+blackbox Data_Memory
+blackbox Instruction_Memory
+
+hierarchy -check -top CPU
+
+proc
+flatten
+memory
+opt
+
+async2sync
+techmap
+opt
+
+dffunmap
+stat
+
+write_blif -blackbox cpu_pure.blif

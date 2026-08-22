@@ -1,0 +1,17 @@
+read_verilog CLU.v
+hierarchy -check -top CLU
+
+proc
+opt -full
+
+techmap
+opt -full
+clean
+
+abc -g gates -script +strash;balance;rewrite;refactor;balance
+
+opt -full
+clean
+
+stat
+ltp

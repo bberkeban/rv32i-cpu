@@ -104,14 +104,23 @@ module CLU (
 );
     wire the_carry;
 
+    wire P_SUPER1;
+    wire G_SUPER1;
+
+    wire P_SUPER2;
+    wire G_SUPER2;
+
+    assign the_carry = (P_SUPER1 & top_carry_in) | G_SUPER1;
+    assign top_carry_out = G_SUPER2 | (P_SUPER2 & G_SUPER1) | (P_SUPER2 & P_SUPER1 & top_carry_in); 
+
     CLU_16bit LCU1(
         .A(operand1[15:0]),
         .B(operand2[15:0]),
         .carry_in(top_carry_in),
         .OUT(CLU_OUTPUT[15:0]),
-        .carry_out(the_carry),
-        .P_super(),
-        .G_super()
+        .carry_out(),
+        .P_super(P_SUPER1),
+        .G_super(G_SUPER1)
     );
 
     CLU_16bit LCU2(
@@ -119,9 +128,9 @@ module CLU (
         .B(operand2[31:16]),
         .carry_in(the_carry),
         .OUT(CLU_OUTPUT[31:16]),
-        .carry_out(top_carry_out),
-        .P_super(),
-        .G_super()
+        .carry_out(),
+        .P_super(P_SUPER2),
+        .G_super(G_SUPER2)
     );
 
 endmodule

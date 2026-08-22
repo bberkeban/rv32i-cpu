@@ -1,0 +1,18 @@
+read_verilog ALU.v
+hierarchy -check -top ALU
+
+proc
+flatten
+opt -full
+
+techmap
+opt -full
+clean
+
+abc -g gates -script +strash;balance;rewrite;refactor;balance
+
+opt -full
+clean
+
+stat
+ltp

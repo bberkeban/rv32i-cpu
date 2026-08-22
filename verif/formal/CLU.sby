@@ -1,0 +1,15 @@
+[options]
+mode bmc
+depth 1
+
+[engines]
+smtbmc z3
+
+[script]
+read_verilog CLU.v
+read_verilog -sv CLU.sv
+prep -top CLU_SVA
+
+[files]
+src/CLU.v
+sva/CLU.sv

@@ -14,9 +14,10 @@ module A_and_B (
             outputA <= 32'b0;
             outputB <= 32'b0;
         end
-        else
+        else begin
             outputA <= inputA;
             outputB <= inputB;
+        end
     end
     
 endmodule
