@@ -1,0 +1,83 @@
+module RF_SVA (
+    input clk,
+    input rst,
+
+    input [31:0] RF_WRITE_DATA,
+
+    input RF_WRITE_ENABLE,
+
+    input [4:0] RF_READ_SELECT_1,
+    input [4:0] RF_READ_SELECT_2,
+    
+    input [4:0] RF_WRITE_SELECT,
+
+    output [31:0] RF_READ_DATA_1,
+    output [31:0] RF_READ_DATA_2
+);
+
+    Register_File UUT(
+        .clk(clk),
+        .rst(rst),
+        .RF_WRITE_DATA(RF_WRITE_DATA),
+        .RF_WRITE_ENABLE(RF_WRITE_ENABLE),
+        .RF_READ_SELECT_1(RF_READ_SELECT_1),
+        .RF_READ_SELECT_2(RF_READ_SELECT_2),
+        .RF_WRITE_SELECT(RF_WRITE_SELECT),
+        .RF_READ_DATA_1(RF_READ_DATA_1),
+        .RF_READ_DATA_2(RF_READ_DATA_2)
+    );
+
+    reg start = 1'b0;
+
+    always @(posedge clk) begin
+        start <= 1'b1;
+    end
+
+    always @(*) begin
+        if ($initstate) begin
+            assume(rst == 1'b1);
+        end
+    end
+
+    (*anyconst*) reg [4:0] shadow_select;
+    reg [31:0] shadow_reg;
+    reg shadow_valid;
+
+    always @(posedge clk or posedge rst) begin
+        if (rst == 1'b1) begin
+            shadow_reg <= 32'b0;
+            shadow_valid <= 1'b0;
+        end
+        else if ((shadow_select != 5'b0) && (RF_WRITE_ENABLE == 1'b1) && (shadow_select == RF_WRITE_SELECT)) begin
+            shadow_reg <= RF_WRITE_DATA;
+            shadow_valid <= 1'b1;
+        end
+    end
+
+
+
+    always @(posedge clk) begin
+        if ($past(start)) begin
+            if (RF_READ_SELECT_1 == 5'b0) begin
+                assert(RF_READ_DATA_1 == 32'b0);
+            end else begin
+                if (RF_READ_SELECT_1 == shadow_select) begin
+                    if (shadow_valid) begin
+                        assert(shadow_reg == RF_READ_DATA_1);
+                    end
+                end
+            end
+
+            if (RF_READ_SELECT_2 == 5'b0) begin
+                assert(RF_READ_DATA_2 == 32'b0);
+            end else begin
+                if (RF_READ_SELECT_2 == shadow_select) begin
+                    if (shadow_valid) begin
+                        assert(shadow_reg == RF_READ_DATA_2);
+                    end
+                end
+            end
+        end
+    end
+
+endmodule

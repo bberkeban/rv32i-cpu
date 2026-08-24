@@ -1,0 +1,16 @@
+[options]
+mode bmc
+depth 20
+timeout 60
+
+[engines]
+smtbmc bitwuzla
+
+[script]
+read_verilog Register_File.v
+read_verilog -sv Register_File2.sv
+prep -top RF_SVA
+
+[files]
+src/Register_File.v
+verif/formal/Register_File2.sv
