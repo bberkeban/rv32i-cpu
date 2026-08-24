@@ -1,4 +1,4 @@
-
+verif/formal/*/**
 *.blif
 *.vcd
 *.vvp
