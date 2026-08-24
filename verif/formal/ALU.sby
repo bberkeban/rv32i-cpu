@@ -1,0 +1,16 @@
+[options]
+mode bmc
+depth 1
+
+[engines]
+smtbmc z3
+
+[script]
+read_verilog newALU.v CLU.v
+read_verilog -sv ALU.sv
+prep -top ALU_SVA
+
+[files]
+src/CLU.v
+src/newALU.v
+verif/formal/ALU.sv
