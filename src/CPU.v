@@ -7,6 +7,13 @@ module CPU (
     output [31:0] PC_debug,
     output [31:0] MEM_debug
 );
+    // IR I/O WIRE SECTION
+    wire [31:0] instruction_to_IR;
+    wire [31:0] IR;
+
+    wire [6:0] opcode = IR[6:0];
+    wire IR_ENABLE;
+    //IR SECTION END
 
     // Control Unit I/O WIRE SECTION
     wire [31:0] immediate;
@@ -14,6 +21,16 @@ module CPU (
     wire IS_BRANCH;
     wire PC_LOAD_DATA_SELECT;
     // Control Unit SECTION END
+
+    // Branch Unit I/O WIRE SECTION
+    wire [2:0] CONDITION_SELECT;
+    wire BRANCH_TAKEN;
+    // Branch Unit I/O WIRE SECTION
+
+    // Memory I/O WIRE SECTION
+    wire MEM_READ_ENABLE;
+    wire MEM_WRITE_ENABLE;
+    // Memory SECTION END
 
     // RF I/O WIRE SECTION
     wire RF_WRITE_ENABLE;
@@ -25,18 +42,24 @@ module CPU (
     wire [31:0] RF_READ_DATA_2;
     reg [31:0] RF_WRITE_DATA;
 
-    always @(*) begin
-        RF_WRITE_DATA = 32'b0;
-        case (RF_WB_MUX_SELECT)
-            2'b00: RF_WRITE_DATA = ALU_REG_OUT;
-            2'b01: RF_WRITE_DATA = BIT_ALIGNED_MEMORY_READ_DATA;
-            2'b10: RF_WRITE_DATA = PC;
-            default: RF_WRITE_DATA = 32'b0;
-        endcase
-    end
-
     wire [1:0] RF_WB_MUX_SELECT;
     // RF SECTION END
+
+    // Branch Target I/O WIRE SECTION
+    wire [31:0] Branch_Target;
+    // Branch Target I/O SECTION END
+
+     // ALU I/O WIRE SECTION
+    reg [31:0] srcA;
+    reg [31:0] srcB;
+    wire [4:0] ALU_OP_SELECT_atALU;
+    wire [31:0] ALU_OUTPUT;
+
+    wire [1:0] ALU_SRC_A_SELECT;
+    wire ALU_SRC_B_SELECT;
+
+    wire [31:0] ALU_REG_OUT;
+    // ALU SECTION END
 
     // PC I/O WIRE SECTION
     reg [31:0] PC_LOAD_DATA;
@@ -53,7 +76,26 @@ module CPU (
 
 
     assign FINALIZED_PC_LOAD_ENABLE = PC_IS_ALIGNED & (PC_LOAD_ENABLE | (IS_BRANCH & BRANCH_TAKEN));
+    // PC SECTION END
 
+    
+    // INTERNAL WIRE SECTION
+    wire [31:0] A;
+    wire [31:0] B;
+    // INTERNAL SECTION END
+
+
+    // LSU I/O WIRE SECTION
+    wire [2:0] LOAD_STORE_CONTROL;
+    wire [31:0] MEMORY_DATA_ADDRESS;
+    wire [31:0] RAW_MEMORY_READ_DATA;
+    wire [31:0] RAW_MEMORY_WRITE_DATA;
+    wire [3:0] STORE_BYTE_CONTROL;
+    wire [31:0] MEMORY_WRITE_DATA;
+    wire [31:0] BIT_ALIGNED_MEMORY_READ_DATA;
+    // LSU SECTION END
+
+    // MUXES
     always @(*) begin
         PC_LOAD_DATA = 32'b0;
         case (PC_LOAD_DATA_SELECT)
@@ -61,27 +103,6 @@ module CPU (
             1'b1: PC_LOAD_DATA = ALU_OUTPUT_TO_PC;
         endcase
     end
-    // PC SECTION END
-
-    // Branch Target I/O WIRE SECTION
-    wire [31:0] Branch_Target;
-    // Branch Target I/O SECTION END
-
-    // INTERNAL WIRE SECTION
-    wire [31:0] A;
-    wire [31:0] B;
-    // INTERNAL SECTION END
-
-    // ALU I/O WIRE SECTION
-    reg [31:0] srcA;
-    reg [31:0] srcB;
-    wire [4:0] ALU_OP_SELECT_atALU;
-    wire [31:0] ALU_OUTPUT;
-
-    wire [1:0] ALU_SRC_A_SELECT;
-    wire ALU_SRC_B_SELECT;
-
-    wire [31:0] ALU_REG_OUT;
 
     always @(*) begin
         srcA = 32'b0;
@@ -100,34 +121,19 @@ module CPU (
             1'b1: srcB = immediate;
         endcase
     end
-    // ALU SECTION END
 
-    // IR I/O WIRE SECTION
-    wire [31:0] instruction_to_IR;
-    wire [31:0] IR;
+    always @(*) begin
+        RF_WRITE_DATA = 32'b0;
+        case (RF_WB_MUX_SELECT)
+            2'b00: RF_WRITE_DATA = ALU_REG_OUT;
+            2'b01: RF_WRITE_DATA = BIT_ALIGNED_MEMORY_READ_DATA;
+            2'b10: RF_WRITE_DATA = PC;
+            default: RF_WRITE_DATA = 32'b0;
+        endcase
+    end
+    // MUXES SECTION END
 
-    wire [6:0] opcode = IR[6:0];
-    //IR SECTION END
 
-    // LSU I/O WIRE SECTION
-    wire [2:0] LOAD_STORE_CONTROL;
-    wire [31:0] MEMORY_DATA_ADDRESS;
-    wire [31:0] RAW_MEMORY_READ_DATA;
-    wire [31:0] RAW_MEMORY_WRITE_DATA;
-    wire [3:0] STORE_BYTE_CONTROL;
-    wire [31:0] MEMORY_WRITE_DATA;
-    wire [31:0] BIT_ALIGNED_MEMORY_READ_DATA;
-    // LSU SECTION END
-
-    // Branch Unit I/O WIRE SECTION
-    wire [2:0] CONDITION_SELECT;
-    wire BRANCH_TAKEN;
-    // Branch Unit I/O WIRE SECTION
-
-    // Memory I/O WIRE SECTION
-    wire MEM_READ_ENABLE;
-    wire MEM_WRITE_ENABLE;
-    // Memory SECTION END
 
 
     ControlUnit CU(
@@ -158,7 +164,9 @@ module CPU (
         .LOAD_STORE_CONTROL(LOAD_STORE_CONTROL),
 
         .IS_BRANCH(IS_BRANCH),
-        .CONDITION_SELECT(CONDITION_SELECT)
+        .CONDITION_SELECT(CONDITION_SELECT),
+
+        .IR_ENABLE(IR_ENABLE)
     );
 
     Register_File RF(
@@ -229,7 +237,8 @@ module CPU (
         .clk(clk),
         .rst(rst),
         .instruction_IR(instruction_to_IR),
-        .IR(IR)
+        .IR(IR),
+        .IR_ENABLE(IR_ENABLE)
     );
 
     Load_Store_Unit LSU(
