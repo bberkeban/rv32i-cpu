@@ -35,20 +35,20 @@ rv32i/
 
 ---
 
-- [ ] **Phase 2: Simulation & Integration Testing**
-  - [ ] Top-level multi-cycle testbench using Icarus Verilog
-  - [ ] Waveform verification and signal tracing with GTKWave
-  - [ ] Testing basic instruction execution and corner cases (branch/jump offsets, memory access)
+- [x] **Phase 2: Submodule Formal Verification**
+  - [x] ALU Formal Verification
+  - [x] Register File Formal Verification
+  - [x] Carry-Lookahead Unit Formal Verification
 ---
-- [ ] **Phase 3: Architectural Compliance & ISA Validation (`riscv-tests`)**
-  - [ ] Setting up the official `riscv-tests` environment
-  - [ ] Running the basic `rv32ui-p-*` test suite
-  - [ ] Pass/fail status monitoring via test signature (`gp` / `tohost`)
+- [x] **Phase 3: ISA Validation (`riscv-tests`)**
+  - [x] Setting up the official `riscv-tests` environment
+  - [x] Running the basic `rv32ui-p-*` test suite
+  - [x] Passed 42/42 RV32I tests
 ---
 - [ ] **Phase 4: 5-Stage Pipelined Microarchitecture Implementation**
-  - [ ] Pipeline stage registers (`IF/ID`, `ID/EX`, `EX/MEM`, `MEM/WB`)
+  - [ ] Pipeline stage registers
   - [ ] Hazard Detection Unit (load-use stalls)
-  - [ ] Data Forwarding Unit (`EX $\rightarrow$ EX`, `MEM $\rightarrow$ EX`)
+  - [ ] Data Forwarding Unit 
   - [ ] Branch handling and pipeline flush logic
 ---
 - [ ] **Phase 5: Formal Verification via `riscv-formal` (RVFI)**
