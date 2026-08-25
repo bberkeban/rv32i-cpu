@@ -1,5 +1,5 @@
 module Data_Memory #(
-    parameter WORDS = 1024
+    parameter WORDS = 4096
 )
 
 (
@@ -16,6 +16,10 @@ module Data_Memory #(
 );
     
     reg [31:0] memory [0:WORDS-1];
+
+    initial begin
+        $readmemh("instructions.txt", memory);
+    end
 
     wire [$clog2(WORDS)-1:0] WORD_ADDRESS = MEMORY_DATA_ADDRESS[$clog2(WORDS)+1:2];
 
