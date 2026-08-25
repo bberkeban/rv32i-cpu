@@ -158,7 +158,9 @@ module ControlUnit (
         ALU_SRC_A_SELECT = 2'b0;
         ALU_SRC_B_SELECT = 1'b0;
 
-        IR_ENABLE = 1'b1;
+        IR_ENABLE = 1'b0;
+
+        IS_BRANCH = 1'b0;
 
         case (states)
 
@@ -252,7 +254,10 @@ module ControlUnit (
 
                     7'b0000011: RF_WB_MUX_SELECT = 2'b01; //LOAD
                 
-                    default: RF_WB_MUX_SELECT = 2'b00;
+                    default: begin
+                        RF_WB_MUX_SELECT = 2'b00;
+                        PC_LOAD_DATA_SELECT = 1'b0;
+                    end 
                 endcase
 
             end
