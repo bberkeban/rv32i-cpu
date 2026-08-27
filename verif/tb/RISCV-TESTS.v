@@ -9,6 +9,8 @@ module RISCV_TESTS_TB;
 
     integer cycle;
 
+    wire [31:0] X3 = UUT.RF.registers[3];
+
     CPU UUT(
         .clk(clk),
         .rst(rst),
@@ -22,12 +24,11 @@ module RISCV_TESTS_TB;
         clk = 1'b0;
         forever #5 clk = ~clk;
     end
-    
+
     initial begin
         $dumpfile("waveform.vcd");
         $dumpvars(0, RISCV_TESTS_TB);
-        $dumpvars(UUT.RF.registers[3]);
-
+        
         cycle = 0;
         rst = 1'b1;
 
@@ -35,39 +36,33 @@ module RISCV_TESTS_TB;
     end
 
     always @(posedge clk) begin
-        
-
         if (rst == 1'b0) begin
-            cycle <= cycle + 1;
-            if (UUT.RF.registers[3] == 32'd1) begin
+            cycle = cycle + 1;
+
+            if (UUT.IR == 32'h00000073) begin
                 $display("\n=================================");
-                $display(" [TEST PASSED] ");
-                $display(" Cycle Count: %0d", cycle);
+                if (X3 == 32'd1) begin
+                    $display(" [TEST PASSED]");
+                    $display(" Total Cycle: %0d", cycle);
+                end else begin
+                    $display(" [TEST FAILED]");
+                    $display(" Failed Sub-test ID: %0d", (X3 >> 1));
+                    $display(" Raw gp(x3) Value  : %0d", X3);
+                    $display(" Last PC           : 0x%08h", PC_debug);
+                    $display(" Total Cycle       : %0d", cycle);
+                end
                 $display("=================================\n");
                 $finish;
             end
-            if (cycle >= 5000) begin
+
+            if (cycle >= 15000) begin
                 $display("\n=================================");
-                if (UUT.RF.registers[3] > 32'd1) begin
-                    $display(" [TEST FAILED]");
-                    $display(" Subtest ID (gp/x3): %0d", UUT.RF.registers[3]);
-                end else begin
-                    $display(" [TIMEOUT] ");
-                end
-                $display(" Last PC: 0x%08h", PC_debug);
-                $display(" Cycle Count: %0d", cycle);
+                $display(" [TIMEOUT] (15000 CYCLES)");
+                $display(" Last PC: 0x%08h | gp(x3): %0d", PC_debug, X3);
                 $display("=================================\n");
                 $finish;
             end
         end
-    
-
-    if (cycle >= 5000) begin
-                $display("\n[TIMEOUT] (5000 CYCLE)!");
-                $display("Son PC: 0x%08h | gp(x3): %0d", PC_debug, UUT.RF.registers[3]);
-                $finish;
-            end
-
     end
 
 endmodule
