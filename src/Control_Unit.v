@@ -22,6 +22,7 @@ module ControlUnit (
     // SLT -Signed "Set Lesser Than", SLTU -Unsigned SLT
     output reg [1:0] ALU_SRC_A_SELECT, // 00 rs1, 01 PC, 11 32'b0
     output reg ALU_SRC_B_SELECT, // 0 rs2, 1 imm
+    output reg ALU_OUTPUT_REG_ENABLE,
 
     //Program Counter control:
 
@@ -162,6 +163,8 @@ module ControlUnit (
 
         IS_BRANCH = 1'b0;
 
+        ALU_OUTPUT_REG_ENABLE = 1'b0;
+
         case (states)
 
             FETCH: begin 
@@ -170,6 +173,9 @@ module ControlUnit (
             end
 
             EXECUTE: begin
+
+                ALU_OUTPUT_REG_ENABLE = 1'b1;
+
                 case (opcode)
 
                     7'b0010011: begin // Register-Immediate ALU
@@ -204,10 +210,15 @@ module ControlUnit (
                         ALU_SRC_B_SELECT = 1'b1; //IMM
                     end 
 
-                    7'b0010111, //AUIPC
+                    7'b0010111: begin //AUIPC
+                        ALU_OP_SELECT = {1'b0, 1'b1, 3'b000};
+                        ALU_SRC_A_SELECT = 2'b01;
+                        ALU_SRC_B_SELECT = 1'b1;
+                    end
+
                     7'b0110111: begin //LUI
                         ALU_OP_SELECT = {1'b0, 1'b1, 3'b000};
-                        ALU_SRC_A_SELECT = {opcode[6], 1'b1};
+                        ALU_SRC_A_SELECT = 2'b11;
                         ALU_SRC_B_SELECT = 1'b1;
                     end
 
@@ -257,6 +268,7 @@ module ControlUnit (
                     default: begin
                         RF_WB_MUX_SELECT = 2'b00;
                         PC_LOAD_DATA_SELECT = 1'b0;
+                        PC_LOAD = 1'b0;
                     end 
                 endcase
 
