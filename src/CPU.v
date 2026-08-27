@@ -59,6 +59,8 @@ module CPU (
     wire ALU_SRC_B_SELECT;
 
     wire [31:0] ALU_REG_OUT;
+
+    wire ALU_OUTPUT_REG_ENABLE;
     // ALU SECTION END
 
     // PC I/O WIRE SECTION
@@ -153,6 +155,7 @@ module CPU (
         .ALU_OP_SELECT(ALU_OP_SELECT_atALU),
         .ALU_SRC_A_SELECT(ALU_SRC_A_SELECT),
         .ALU_SRC_B_SELECT(ALU_SRC_B_SELECT),
+        .ALU_OUTPUT_REG_ENABLE(ALU_OUTPUT_REG_ENABLE),
 
         .PC_LOAD(PC_LOAD_ENABLE),
         .PC_COUNT_UP(PC_COUNT_UP),
@@ -194,6 +197,7 @@ module CPU (
         .clk(clk),
         .rst(rst),
         .ALU_OUTPUT_atALU(ALU_OUTPUT),
+        .ALU_OUTPUT_REG_ENABLE(ALU_OUTPUT_REG_ENABLE),
         .ALU_REG_OUT(ALU_REG_OUT)
     );
 
