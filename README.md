@@ -43,7 +43,7 @@ rv32i/
 - [x] **Phase 3: ISA Validation (`riscv-tests`)**
   - [x] Setting up the official `riscv-tests` environment
   - [x] Running the basic `rv32ui-p-*` test suite
-  - [x] Passed 42/42 RV32I tests
+  - [x] Passed `rv32ui-p-*` tests
 ---
 - [ ] **Phase 4: 5-Stage Pipelined Microarchitecture Implementation**
   - [ ] Pipeline stage registers
